@@ -2,29 +2,20 @@ import json
 import os
 from googleapiclient.discovery import build
 
-# проверка переменной окружения
-# print(os.getenv('YT_API_KEY'))
-
-# status: home_work_2
-
-# создать специальный объект для работы с API
-youtube = build('youtube', 'v3',
-                developerKey=os.getenv('YT_API_KEY'))
-
-
 class Channel:
     """Класс для ютуб-канала"""
 
     def __init__(self, channel_id: str) -> None:
         """Экземпляр инициализируется id канала.
         Дальше все данные будут подтягиваться по API."""
+        self.chanel = (Channel.get_service().
+                       channels().list(id=channel_id, part='snippet,statistics')
+                       .execute())
         self.__channel_id = channel_id
-        self.channel = (youtube.channels().list(id=channel_id,
-                                                part='snippet,statistics').
-                        execute())
+
 
         self.info_about_chanel = (
-            json.dumps(self.channel, indent=2, ensure_ascii=False))
+            json.dumps(self.chanel, indent=2, ensure_ascii=False))
 
         self.channel_dict = json.loads(self.info_about_chanel)
         self.channel_snippet = self.channel_dict['items'][0]['snippet']
@@ -43,9 +34,11 @@ class Channel:
         self.subscribes = (
             self.channel_dict)['items'][0]['statistics']['subscriberCount']
         # - количество видео
-        self.video_count = self.channel_dict['items'][0]['statistics']['videoCount']
+        self.video_count = self.channel_dict['items'][0]['statistics']
+        ['videoCount']
         # - общее количество просмотров
-        self.views_count = self.channel_dict['items'][0]['statistics']['viewCount']
+        self.views_count = self.channel_dict['items'][0]['statistics']
+        ['viewCount']
 
     @property
     def channel_id(self):
@@ -61,10 +54,8 @@ class Channel:
     def get_service():
         """класс-метод `get_service()`, возвращающий объект для работы
          с YouTube API"""
-
         youtube = build('youtube', 'v3',
                         developerKey=os.getenv('YT_API_KEY'))
-
         return youtube
 
     def to_json(self, cls):

@@ -2,6 +2,9 @@ import json
 import os
 from googleapiclient.discovery import build
 
+
+# home_work 3 status
+
 class Channel:
     """Класс для ютуб-канала"""
 
@@ -13,14 +16,11 @@ class Channel:
                        .execute())
         self.__channel_id = channel_id
 
-
         self.info_about_chanel = (
             json.dumps(self.chanel, indent=2, ensure_ascii=False))
 
         self.channel_dict = json.loads(self.info_about_chanel)
         self.channel_snippet = self.channel_dict['items'][0]['snippet']
-
-        # print(self.channel_snippet)
 
         # - id канала
         self.id = self.channel_dict['items'][0]['id']
@@ -29,7 +29,7 @@ class Channel:
         # - описание канала
         self.description = self.channel_snippet['description']
         # - ссылка на канал
-        self.url = self.channel_snippet['thumbnails']['default']['url']
+        self.url = f"https://www.youtube.com/channel/{channel_id}"
         # - количество подписчиков
         self.subscribes = (
             self.channel_dict)['items'][0]['statistics']['subscriberCount']
@@ -39,6 +39,11 @@ class Channel:
         # - общее количество просмотров
         self.views_count = self.channel_dict['items'][0]['statistics']
         ['viewCount']
+
+    def __str__(self):
+        return f'{self.title} {self.url}'
+
+    # 'MoscowPython (https://www.youtube.com/channel/UC-OVMPlMA3-YCIeg4z5z23A)'
 
     @property
     def channel_id(self):
@@ -75,6 +80,45 @@ class Channel:
             json.dump(dictionary_of_atr, file)
 
 
+    # print(moscowpython + highload)  # 100100
+    # print(moscowpython - highload)  # -48300
+    # # print(highload - moscowpython)  # 48300
+    # # print(moscowpython > highload)  # False
+    # # print(moscowpython >= highload)  # False
+    # # print(moscowpython < highload)  # True
+    # # print(moscowpython <= highload)  # True
+    # # print(moscowpython == highload)  # False
+    # # новые магисеские методы для перегурузки операторов
 
 
+    # всё сравнение и матеметические опреации по количеству подписчиков
+    def __add__(self, other):
+        """operator +"""
+        return int(self.subscribes) + int(other.subscribes)
 
+    def __sub__(self, other):
+        """operator - """
+        return int(self.subscribes) - int(other.subscribes)
+
+    def __lt__(self, other):
+        """operator <"""
+        return int(self.subscribes) < int(other.subscribes)
+
+    def __le__(self, other):
+        """operator <="""
+        return int(self.subscribes) <= int(other.subscribes)
+
+
+    def __eq__(self, other):
+        """operator =="""
+        return int(self.subscribes) == int(other.subscribes)
+
+
+    def __gt__(self, other):
+        """operator >"""
+        return int(self.subscribes) > int(other.subscribes)
+
+
+    def __ge__(self, other):
+        """operator >="""
+        return int(self.subscribes) >= int(other.subscribes)

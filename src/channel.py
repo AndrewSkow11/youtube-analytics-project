@@ -3,6 +3,7 @@ import os
 from googleapiclient.discovery import build
 
 
+
 # home_work 3 status
 
 class Channel:
@@ -55,6 +56,9 @@ class Channel:
 
     # Добавьте в класс `Channel` следующие методы:
     # - класс-метод `get_service()`, возвращающий объект для работы с YouTube API
+
+
+
     @staticmethod
     def get_service():
         """класс-метод `get_service()`, возвращающий объект для работы

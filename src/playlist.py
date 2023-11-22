@@ -1,30 +1,8 @@
 import datetime
-
 import isodate
-
 from src.youtube_api import get_service
-from src.video import PLVideo
 
-#
-# Множественное наследование. Домашнее задание
-#
-# ## Описание задачи
-#
-# - Реализуйте класс `PlayList`, который инициализируется _id_ плейлиста и имеет следующие публичные атрибуты:
-#   - название плейлиста
-#   - ссылку на плейлист
-#
-# - Реализуйте следующие методы класса `PlayList`
-#   - `total_duration` возвращает объект класса `datetime.timedelta` с суммарной длительность плейлиста (обращение как к свойству, использовать `@property`)
-#   - `show_best_video()` возвращает ссылку на самое популярное видео из плейлиста (по количеству лайков)
-#
-# ## Ожидаемое поведение
-# - Код в файле `main.py` должен выдавать ожидаемые значения
-
-
-
-class PlayList(PLVideo):
-
+class PlayList:
     def __init__(self, playlist_id):
 
         about_playlist = (get_service().playlists().list
@@ -39,43 +17,52 @@ class PlayList(PLVideo):
         self.title = about_playlist['items'][0]['snippet']['title']
         self.url = "https://www.youtube.com/playlist?list=" + playlist_id
 
+        # для других методов
 
-    @property
-    def total_duration(self):
         playlist_videos = (
             get_service()
             .playlistItems().list(playlistId=self.__playlist_id,
                                   part='contentDetails',
-                                  maxResults=50,)
+                                  maxResults=50, )
             .execute())
 
         # получить все id видеороликов из плейлиста
         video_ids: list[str] = [video['contentDetails']['videoId']
                                 for video in playlist_videos['items']]
 
-        video_response = (get_service().videos()
-                          .list(part='contentDetails,statistics',
-                                                     id=','.join(video_ids)
-                                                     ).execute())
+        self.video_response = (get_service().videos()
+                               .list(part='contentDetails,statistics',
+                                     id=','.join(video_ids)
+                                     ).execute())
+
+    @property
+    def total_duration(self):
 
         total_duration = datetime.timedelta()
 
-        for video in video_response['items']:
+        for video in self.video_response['items']:
             # YouTube video duration is in ISO 8601 format
             iso_8601_duration = video['contentDetails']['duration']
             duration = isodate.parse_duration(iso_8601_duration)
-            total_duration += datetime.timedelta(seconds=duration.total_seconds())
-            # only for tests in
-            # print("duration:", duration)
-            # print('total duration', total_duration)
+            total_duration += (datetime.
+                               timedelta(seconds=duration.total_seconds()))
 
         return total_duration
 
     def show_best_video(self):
         """Возвращает ссылку на самое популярное видео из плейлиста
         (по количеству лайков)"""
-        pass
 
+        max_likes = 0
+        id_best_video = ''
 
-pl1 = PlayList('PLv_zOGKKxVpj-n2qLkEM2Hj96LO6uqgQw')
-#
+        for video in self.video_response['items']:
+
+            like_count = int(video['statistics']['likeCount'])
+            print("like_count", like_count)
+
+            if like_count > max_likes:
+                max_likes = like_count
+                id_best_video = video['id']
+
+        return "https://youtu.be/" + id_best_video

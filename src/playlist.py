@@ -59,7 +59,6 @@ class PlayList:
         for video in self.video_response['items']:
 
             like_count = int(video['statistics']['likeCount'])
-            print("like_count", like_count)
 
             if like_count > max_likes:
                 max_likes = like_count
